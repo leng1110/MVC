@@ -60,10 +60,10 @@ class Sql
     // 查询所有
     public function fetchAll()
     {
-        $sql = sprintf("select * from `%s` %s", $this->table, $this->filter);
-        $sth = Db::pdo()->prepare($sql);
+        $sql = sprintf("select * from `%s` %s", $this->table, $this->filter);   //替换百分号为指定字符
+        $sth = Db::pdo()->prepare($sql);  //执行sql语句  返回PDOStatement 对象
         $sth = $this->formatParam($sth, $this->param);
-        $sth->execute();
+        $sth->execute();   //执行sql语句  返回bool型
 
         return $sth->fetchAll();
     }
@@ -130,8 +130,8 @@ class Sql
     public function formatParam(PDOStatement $sth, $params = array())
     {
         foreach ($params as $param => &$value) {
-            $param = is_int($param) ? $param + 1 : ':' . ltrim($param, ':');
-            $sth->bindParam($param, $value);
+            $param = is_int($param) ? $param + 1 : ':' . ltrim($param, ':');   //判断是否为整数类型
+            $sth->bindParam($param, $value);  // 绑定一个参数到指定的变量名
         }
 
         return $sth;
