@@ -12,7 +12,13 @@ class View
 
     function __construct($controller, $action)
     {
-        $this->_controller = strtolower($controller);
+        // strtolower() 转换字符串中的所有大写字符为小写  
+        // strtoupper() 把字符串转换为大写 
+        // lcfirst() 把字符串中的首字符转换为小写  
+        // ucfirst() 把字符串中的首字符转换为大写
+        // ucwords() 把字符串中每个单词的首字符转换为大写
+
+        $this->_controller = strtolower($controller);   
         $this->_action = strtolower($action);
     }
  
@@ -25,7 +31,7 @@ class View
     // 渲染显示
     public function render()
     {
-        extract($this->variables);
+        extract($this->variables);   //给指定变量赋值
         $defaultHeader = APP_PATH . 'app/views/header.php';
         $defaultFooter = APP_PATH . 'app/views/footer.php';
 
