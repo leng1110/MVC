@@ -1,4 +1,5 @@
 <?php
+
 namespace fastphp;
 
 // 框架根目录
@@ -36,8 +37,9 @@ class Fastphp
         $param = array();
 
         $url = $_SERVER['REQUEST_URI'];
+
         // 清除?之后的内容
-        $position = strpos($url, '?');
+        $position = strpos($url, '?');   // 检索字符串中某个字符的位置
         $url = $position === false ? $url : substr($url, 0, $position);
         // 删除前后的“/”
         $url = trim($url, '/');
@@ -45,14 +47,15 @@ class Fastphp
         if ($url) {
             // 使用“/”分割字符串，并保存在数组中
             $urlArray = explode('/', $url);
+
             // 删除空的数组元素
-            $urlArray = array_filter($urlArray);
+            $urlArray = array_filter($urlArray);  // 用回调函数过滤数组中的元素  第二个参数必须是回调函数
             
             // 获取控制器名
-            $controllerName = ucfirst($urlArray[0]);
+            $controllerName = ucfirst($urlArray[0]);  //把字符串首字母转换为大写
             
             // 获取动作名
-            array_shift($urlArray);
+            array_shift($urlArray);   //删除数组中的第一个元素（red），并返回被删除元素的值
             $actionName = $urlArray ? $urlArray[0] : $actionName;
             
             // 获取URL参数
@@ -60,13 +63,13 @@ class Fastphp
             $param = $urlArray ? $urlArray : array();
         }
 
-        // 判断控制器和操作是否存在
+        // 判断控制器和操作是否存在  class_exists() 判断类是否存在
         $controller = 'app\\controllers\\'. $controllerName . 'Controller';
         if (!class_exists($controller)) {
-            exit($controller . '控制器不存在');
+            exit("<center><h3>".$controller . '控制器不存在</h3></center>');
         }
         if (!method_exists($controller, $actionName)) {
-            exit($actionName . '方法不存在');
+            exit("<center><h3>".$actionName . '方法不存在</h3></center>');
         }
 
         // 如果控制器和操作名存在，则实例化控制器，因为控制器对象里面
@@ -76,15 +79,16 @@ class Fastphp
 
         // $dispatch保存控制器实例化后的对象，我们就可以调用它的方法，
         // 也可以像方法中传入参数，以下等同于：$dispatch->$actionName($param)
-        call_user_func_array(array($dispatch, $actionName), $param);
+        // call_user_func_array() 调用回调函数，并把一个数组参数作为回调函数的参数
+        call_user_func_array(array($dispatch, $actionName), $param);   
     }
 
     // 检测开发环境
     public function setReporting()
     {
         if (APP_DEBUG === true) {
-            error_reporting(E_ALL);
-            ini_set('display_errors','On');
+            error_reporting(E_ALL);   //设置提示错误级别  E_ALL 全部错误  0 关闭提示 
+            ini_set('display_errors','On');   // 为一个配置设置值
         } else {
             error_reporting(E_ALL);
             ini_set('display_errors','Off');
@@ -95,6 +99,8 @@ class Fastphp
     // 删除敏感字符
     public function stripSlashesDeep($value)
     {
+        // array_map()  数组每个值的平方  并返回新值得数组
+        // stripslashes()  删除反斜线
         $value = is_array($value) ? array_map(array($this, 'stripSlashesDeep'), $value) : stripslashes($value);
         return $value;
     }
@@ -102,7 +108,7 @@ class Fastphp
     // 检测敏感字符并删除
     public function removeMagicQuotes()
     {
-        if (get_magic_quotes_gpc()) {
+        if (get_magic_quotes_gpc()) {  // get_magic_quotes_gpc()  获取 magic_quotes_gpc 配置选项设置
             $_GET = isset($_GET) ? $this->stripSlashesDeep($_GET ) : '';
             $_POST = isset($_POST) ? $this->stripSlashesDeep($_POST ) : '';
             $_COOKIE = isset($_COOKIE) ? $this->stripSlashesDeep($_COOKIE) : '';
@@ -117,7 +123,7 @@ class Fastphp
     // 参考: http://php.net/manual/zh/faq.using.php#faq.register-globals
     public function unregisterGlobals()
     {
-        if (ini_get('register_globals')) {
+        if (ini_get('register_globals')) {    //获取一个配置选项的值
             $array = array('_SESSION', '_POST', '_GET', '_COOKIE', '_REQUEST', '_SERVER', '_ENV', '_FILES');
             foreach ($array as $value) {
                 foreach ($GLOBALS[$value] as $key => $var) {
@@ -148,10 +154,10 @@ class Fastphp
         if (isset($classMap[$className])) {
             // 包含内核文件
             $file = $classMap[$className];
-        } elseif (strpos($className, '\\') !== false) {
+        } elseif (strpos($className, '\\') !== false) { 
             // 包含应用（application目录）文件
-            $file = APP_PATH . str_replace('\\', '/', $className) . '.php';
-            if (!is_file($file)) {
+            $file = APP_PATH . str_replace('\\', '/', $className) . '.php';   //替换字符串中指定字符
+            if (!is_file($file)) {   //检索正常文件
                 return;
             }
         } else {
